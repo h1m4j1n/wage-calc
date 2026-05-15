@@ -29,7 +29,6 @@
     overflow-x: hidden;
   }
 
-  /* Background grain */
   body::before {
     content: '';
     position: fixed;
@@ -121,20 +120,24 @@
   }
   input::placeholder { color: #3a3a52; }
 
-  /* Time row */
-  .time-row { display: flex; gap: 10px; align-items: center; }
-  .time-row input { flex: 1; }
+  .input-hint {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 5px;
+    padding-left: 2px;
+  }
+
+  .time-row { display: flex; gap: 10px; align-items: flex-start; }
   .time-sep {
     color: var(--muted);
     font-size: 20px;
     font-weight: 700;
     flex-shrink: 0;
     padding: 0 2px;
-    margin-top: 22px;
+    margin-top: 36px;
   }
   .time-row .field { flex: 1; margin-bottom: 0; }
 
-  /* Button */
   button {
     width: 100%;
     padding: 18px;
@@ -154,10 +157,8 @@
   }
   button:active { transform: scale(.97); opacity: .88; }
 
-  /* Result card */
-  #result { animation: none; }
+  #result { animation: none; display: none; }
   #result.show { display: block; animation: fadeUp .35s ease both; }
-  #result { display: none; }
 
   .result-header {
     display: flex;
@@ -181,7 +182,6 @@
     letter-spacing: -.03em;
     color: var(--accent);
   }
-  .big-unit { font-size: 20px; font-weight: 700; color: var(--muted); margin-left: 4px; }
 
   .divider { height: 1px; background: var(--border); margin: 16px 0; }
 
@@ -195,7 +195,6 @@
   .stat-value { font-size: 15px; font-weight: 700; color: var(--text); }
   .stat-value.warn { color: var(--accent2); }
 
-  /* Error */
   .err {
     background: rgba(255,107,74,.1);
     border: 1px solid rgba(255,107,74,.3);
@@ -229,12 +228,14 @@
     <div class="time-row">
       <div class="field">
         <label>開始</label>
-        <input type="time" id="start">
+        <input type="text" id="start" inputmode="numeric" placeholder="09:00" maxlength="5">
+        <div class="input-hint">数字4桁 例: 0900</div>
       </div>
       <div class="time-sep">→</div>
       <div class="field">
         <label>終了</label>
-        <input type="time" id="end">
+        <input type="text" id="end" inputmode="numeric" placeholder="18:00" maxlength="5">
+        <div class="input-hint">深夜跨ぎ対応</div>
       </div>
     </div>
     <div class="field" style="margin-top:14px">
@@ -278,6 +279,42 @@
 </div>
 
 <script>
+function setupTimeInput(id) {
+  const input = document.getElementById(id);
+
+  input.addEventListener('input', function() {
+    let digits = this.value.replace(/\D/g, '');
+    if (digits.length === 0) { this.value = ''; return; }
+    if (digits.length > 4) digits = digits.slice(0, 4);
+
+    if (digits.length === 4) {
+      this.value = digits.slice(0, 2) + ':' + digits.slice(2, 4);
+    } else {
+      this.value = digits;
+    }
+  });
+
+  // フォーカスを外したら0埋めして補完
+  input.addEventListener('blur', function() {
+    let digits = this.value.replace(/\D/g, '');
+    if (digits.length === 0) return;
+    while (digits.length < 4) digits = '0' + digits;
+    this.value = digits.slice(0, 2) + ':' + digits.slice(2, 4);
+  });
+}
+
+setupTimeInput('start');
+setupTimeInput('end');
+
+function parseTime(str) {
+  const parts = str.split(':');
+  if (parts.length !== 2) return null;
+  const h = parseInt(parts[0], 10);
+  const m = parseInt(parts[1], 10);
+  if (isNaN(h) || isNaN(m) || h < 0 || h > 23 || m < 0 || m > 59) return null;
+  return h * 60 + m;
+}
+
 function showErr(msg) {
   const e = document.getElementById('err');
   e.textContent = msg;
@@ -290,32 +327,36 @@ function hideErr() {
 
 function calc() {
   hideErr();
-  const pay = Number(document.getElementById("pay").value) || 0;
-  const start = document.getElementById("start").value;
-  const end = document.getElementById("end").value;
-  const breakMin = Number(document.getElementById("break").value) || 0;
+  const pay       = Number(document.getElementById("pay").value) || 0;
+  const startVal  = document.getElementById("start").value.trim();
+  const endVal    = document.getElementById("end").value.trim();
+  const breakMin  = Number(document.getElementById("break").value) || 0;
   const transport = Number(document.getElementById("transport").value) || 0;
 
-  if (!start || !end) { showErr("⚠ 勤務時間を入力してください"); return; }
+  if (!startVal || !endVal) { showErr("⚠ 勤務時間を入力してください"); return; }
 
-  let s = new Date("1970-01-01T" + start);
-  let e2 = new Date("1970-01-01T" + end);
-  if (e2 <= s) e2.setDate(e2.getDate() + 1);
+  const startMin = parseTime(startVal);
+  const endMin   = parseTime(endVal);
 
-  let diffMin = (e2 - s) / 60000 - breakMin;
+  if (startMin === null) { showErr("⚠ 開始時間が正しくありません (例: 0900)"); return; }
+  if (endMin   === null) { showErr("⚠ 終了時間が正しくありません (例: 1800)"); return; }
+
+  let diffMin = endMin - startMin;
+  if (diffMin <= 0) diffMin += 24 * 60; // 深夜跨ぎ
+  diffMin -= breakMin;
+
   if (diffMin <= 0) { showErr("⚠ 時間の設定を確認してください"); return; }
 
   const workHours = diffMin / 60;
   const roundTrip = transport * 2;
-  const realPay = pay - roundTrip;
-  const hourly = realPay / workHours;
-
+  const realPay   = pay - roundTrip;
+  const hourly    = realPay / workHours;
   const fmt = n => Math.round(n).toLocaleString('ja-JP');
 
-  document.getElementById("r-hourly").textContent = fmt(hourly) + " 円";
-  document.getElementById("r-hours").textContent = workHours.toFixed(2) + " 時間";
+  document.getElementById("r-hourly").textContent    = fmt(hourly) + " 円";
+  document.getElementById("r-hours").textContent     = workHours.toFixed(2) + " 時間";
   document.getElementById("r-transport").textContent = "−" + fmt(roundTrip) + " 円";
-  document.getElementById("r-net").textContent = fmt(realPay) + " 円";
+  document.getElementById("r-net").textContent       = fmt(realPay) + " 円";
 
   const res = document.getElementById("result");
   res.classList.remove('show');
