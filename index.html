@@ -226,6 +226,10 @@
         <span class="stat-label" id="r-pass-label">定期区間</span>
         <span class="stat-value" id="r-pass-value" style="color:var(--accent)">—</span>
       </div>
+      <div id="r-route-row" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:6px;font-weight:700;letter-spacing:.08em;text-transform:uppercase">経路</div>
+        <div id="r-route-value" style="font-size:13px;color:var(--text);line-height:1.7"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -364,6 +368,8 @@ async function savePass() {
 }
 
 // ── 運賃取得（手動） ──
+let lastFareRoute = null; // 結果カードに表示するために保持
+
 async function fetchFare() {
   const from=document.getElementById('from-station').value.trim(), to=document.getElementById('to-station').value.trim();
   const via=document.getElementById('via-station').value.trim();
@@ -375,11 +381,30 @@ async function fetchFare() {
     if (via) url += `&via=${encodeURIComponent(via)}`;
     const r=await fetch(url);
     const d=await r.json();
-    const route = via ? `${from}→${via}→${to}` : `${from}→${to}`;
-    if (d.fare) { document.getElementById('transport').value=d.fare; status.textContent=`✓ ${route}：片道 ${d.fare.toLocaleString()}円（IC運賃）`; status.className='fare-status ok'; btn.className='sub-btn ok'; }
-    else { status.textContent='⚠ '+(d.error||'取得失敗'); status.className='fare-status err'; btn.className='sub-btn'; }
-  } catch { status.textContent='⚠ 通信エラー'; status.className='fare-status err'; btn.className='sub-btn'; }
+    if (d.fare) {
+      document.getElementById('transport').value=d.fare;
+      // 路線名を挟んだルート文字列を生成
+      const routeStr = buildRouteStr(d.stations, d.lines);
+      lastFareRoute = routeStr;
+      status.innerHTML=`✓ ${routeStr}<br><span style="color:var(--muted);font-size:11px">片道 ${d.fare.toLocaleString()}円（IC運賃）</span>`;
+      status.className='fare-status ok'; btn.className='sub-btn ok';
+    } else {
+      status.textContent='⚠ '+(d.error||'取得失敗'); status.className='fare-status err'; btn.className='sub-btn';
+      lastFareRoute = null;
+    }
+  } catch { status.textContent='⚠ 通信エラー'; status.className='fare-status err'; btn.className='sub-btn'; lastFareRoute=null; }
   btn.textContent='運賃を取得';
+}
+
+function buildRouteStr(stations, lines) {
+  if (!stations || !stations.length) return '';
+  // 全角英字を半角に変換して路線名を短くする
+  const normLine = s => s.replace(/[Ａ-Ｚａ-ｚ]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0));
+  let s = stations[0];
+  for (let i=0; i<(lines||[]).length; i++) {
+    s += ` <span style="font-size:10px;color:var(--muted)">(${normLine(lines[i])})</span> → ${stations[i+1]||''}`;
+  }
+  return s;
 }
 
 // ── 時間入力 ──
@@ -414,6 +439,9 @@ function calc(){
   document.getElementById("r-net").textContent=fmt(rp)+" 円";
   const pr=document.getElementById('r-pass-row');
   if(selectedPassId){ const p=passes.find(x=>x.id===selectedPassId); if(p){ document.getElementById('r-pass-label').textContent=`定期：${p.name}`; document.getElementById('r-pass-value').textContent=`${p.from_station}→${p.to_station}`; pr.style.display='flex'; } } else pr.style.display='none';
+
+  const rr=document.getElementById('r-route-row');
+  if(lastFareRoute){ document.getElementById('r-route-value').innerHTML=lastFareRoute; rr.style.display='block'; } else rr.style.display='none';
   const res=document.getElementById("result"); res.classList.remove('show'); void res.offsetWidth; res.classList.add('show');
 }
 </script>
