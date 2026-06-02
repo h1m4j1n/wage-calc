@@ -162,6 +162,13 @@
             </div>
           </div>
         </div>
+        <div class="field" style="margin-bottom:10px">
+          <label>経由駅（任意）</label>
+          <div class="suggest-wrap">
+            <input type="text" id="pass-via" placeholder="例: 品川（省略可）" autocomplete="off" oninput="showSuggest('pass-via','pass-via-list')">
+            <div class="suggest-list" id="pass-via-list"></div>
+          </div>
+        </div>
         <button class="sub-btn" id="pass-fare-btn" onclick="fetchPassFare()">運賃を自動取得</button>
         <div class="fare-status" id="pass-fare-status"></div>
         <div class="field" style="margin-top:10px">
@@ -187,6 +194,13 @@
             <input type="text" id="to-station" placeholder="例: 新宿" autocomplete="off" oninput="showSuggest('to-station','to-list')">
             <div class="suggest-list" id="to-list"></div>
           </div>
+        </div>
+      </div>
+      <div class="field" style="margin-bottom:10px">
+        <label>経由駅（任意）</label>
+        <div class="suggest-wrap">
+          <input type="text" id="via-station" placeholder="例: 品川（省略可）" autocomplete="off" oninput="showSuggest('via-station','via-list')">
+          <div class="suggest-list" id="via-list"></div>
         </div>
       </div>
       <button class="sub-btn" id="fare-btn" onclick="fetchFare()">運賃を取得</button>
@@ -322,13 +336,17 @@ function toggleAddPass() {
 }
 async function fetchPassFare() {
   const from=document.getElementById('pass-from').value.trim(), to=document.getElementById('pass-to').value.trim();
+  const via=document.getElementById('pass-via').value.trim();
   const btn=document.getElementById('pass-fare-btn'), status=document.getElementById('pass-fare-status');
   if (!from||!to) { status.textContent='⚠ 駅名を入力してください'; status.className='fare-status err'; return; }
   btn.textContent='取得中…'; btn.className='sub-btn loading';
   try {
-    const r=await fetch(`${WORKER_URL}/?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`);
+    let url=`${WORKER_URL}/?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`;
+    if (via) url += `&via=${encodeURIComponent(via)}`;
+    const r=await fetch(url);
     const d=await r.json();
-    if (d.fare) { document.getElementById('pass-fare').value=d.fare; status.textContent=`✓ ${from}→${to}：${d.fare.toLocaleString()}円`; status.className='fare-status ok'; }
+    const route = via ? `${from}→${via}→${to}` : `${from}→${to}`;
+    if (d.fare) { document.getElementById('pass-fare').value=d.fare; status.textContent=`✓ ${route}：${d.fare.toLocaleString()}円`; status.className='fare-status ok'; }
     else { status.textContent='⚠ '+(d.error||'取得失敗'); status.className='fare-status err'; }
   } catch { status.textContent='⚠ 通信エラー'; status.className='fare-status err'; }
   btn.textContent='運賃を自動取得'; btn.className='sub-btn';
@@ -348,13 +366,17 @@ async function savePass() {
 // ── 運賃取得（手動） ──
 async function fetchFare() {
   const from=document.getElementById('from-station').value.trim(), to=document.getElementById('to-station').value.trim();
+  const via=document.getElementById('via-station').value.trim();
   const btn=document.getElementById('fare-btn'), status=document.getElementById('fare-status');
   if (!from||!to) { status.textContent='⚠ 駅名を入力してください'; status.className='fare-status err'; return; }
   btn.textContent='取得中…'; btn.className='sub-btn loading';
   try {
-    const r=await fetch(`${WORKER_URL}/?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`);
+    let url=`${WORKER_URL}/?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`;
+    if (via) url += `&via=${encodeURIComponent(via)}`;
+    const r=await fetch(url);
     const d=await r.json();
-    if (d.fare) { document.getElementById('transport').value=d.fare; status.textContent=`✓ ${from}→${to}：片道 ${d.fare.toLocaleString()}円（IC運賃）`; status.className='fare-status ok'; btn.className='sub-btn ok'; }
+    const route = via ? `${from}→${via}→${to}` : `${from}→${to}`;
+    if (d.fare) { document.getElementById('transport').value=d.fare; status.textContent=`✓ ${route}：片道 ${d.fare.toLocaleString()}円（IC運賃）`; status.className='fare-status ok'; btn.className='sub-btn ok'; }
     else { status.textContent='⚠ '+(d.error||'取得失敗'); status.className='fare-status err'; btn.className='sub-btn'; }
   } catch { status.textContent='⚠ 通信エラー'; status.className='fare-status err'; btn.className='sub-btn'; }
   btn.textContent='運賃を取得';
