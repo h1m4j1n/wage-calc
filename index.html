@@ -8,310 +8,104 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root {
-    --bg: #0e0e12;
-    --card: #18181f;
-    --border: #2a2a38;
-    --accent: #c8f23a;
-    --accent2: #ff6b4a;
-    --text: #f0f0f5;
-    --muted: #7a7a9a;
-    --input-bg: #111118;
-    --radius: 16px;
+    --bg: #0e0e12; --card: #18181f; --border: #2a2a38;
+    --accent: #c8f23a; --accent2: #ff6b4a;
+    --text: #f0f0f5; --muted: #7a7a9a; --input-bg: #111118; --radius: 16px;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  body {
-    font-family: 'Noto Sans JP', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100svh;
-    padding: 24px 16px 48px;
-    overflow-x: hidden;
-  }
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-    pointer-events: none;
-    z-index: 0;
-    opacity: 0.6;
-  }
-  .wrap { position: relative; z-index: 1; max-width: 420px; margin: 0 auto; }
-  header { margin-bottom: 28px; }
-  .badge {
-    display: inline-block;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: .12em;
-    text-transform: uppercase;
-    color: var(--accent);
-    border: 1px solid var(--accent);
-    padding: 3px 10px;
-    border-radius: 100px;
-    margin-bottom: 10px;
-  }
-  h1 {
-    font-family: 'Syne', sans-serif;
-    font-size: 28px;
-    font-weight: 800;
-    line-height: 1.15;
-    letter-spacing: -.02em;
-  }
-  h1 span { color: var(--accent); }
+  body { font-family: 'Noto Sans JP', sans-serif; background: var(--bg); color: var(--text); min-height: 100svh; padding: 24px 16px 48px; overflow-x: hidden; }
+  body::before { content:''; position:fixed; inset:0; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events:none; z-index:0; opacity:0.6; }
+  .wrap { position:relative; z-index:1; max-width:420px; margin:0 auto; }
+  header { margin-bottom:28px; }
+  .badge { display:inline-block; font-size:10px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--accent); border:1px solid var(--accent); padding:3px 10px; border-radius:100px; margin-bottom:10px; }
+  h1 { font-family:'Syne',sans-serif; font-size:28px; font-weight:800; line-height:1.15; letter-spacing:-.02em; }
+  h1 span { color:var(--accent); }
+  #login-screen { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:60vh; gap:24px; text-align:center; }
+  #login-screen h1 { font-size:32px; }
+  .login-sub { color:var(--muted); font-size:14px; line-height:1.6; }
+  .google-btn { display:flex; align-items:center; gap:12px; background:#fff; color:#1a1a1a; border:none; border-radius:12px; padding:14px 24px; font-family:'Noto Sans JP',sans-serif; font-size:15px; font-weight:700; cursor:pointer; width:100%; max-width:320px; justify-content:center; transition:opacity .15s,transform .15s; box-shadow:0 4px 20px rgba(0,0,0,.3); }
+  .google-btn:active { opacity:.85; transform:scale(.97); }
+  .google-icon { width:20px; height:20px; }
+  .user-bar { display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; padding:10px 14px; background:var(--card); border:1px solid var(--border); border-radius:12px; }
+  .user-info { display:flex; align-items:center; gap:10px; }
+  .user-avatar { width:28px; height:28px; border-radius:50%; background:var(--border); object-fit:cover; }
+  .user-name { font-size:13px; font-weight:500; color:var(--muted); }
+  .logout-btn { font-size:12px; color:var(--muted); background:none; border:1px solid var(--border); border-radius:8px; padding:5px 10px; cursor:pointer; width:auto; font-family:'Noto Sans JP',sans-serif; }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:20px; margin-bottom:12px; animation:fadeUp .4s ease both; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+  .section-label { font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-bottom:14px; }
+  .field { margin-bottom:14px; }
+  .field:last-child { margin-bottom:0; }
+  label { display:block; font-size:13px; font-weight:500; color:var(--muted); margin-bottom:6px; }
+  input[type=text], input[type=number] { width:100%; background:var(--input-bg); border:1.5px solid var(--border); border-radius:10px; color:var(--text); font-family:'Noto Sans JP',sans-serif; font-size:18px; padding:14px 16px; outline:none; transition:border-color .2s,box-shadow .2s; -webkit-appearance:none; }
+  input:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(200,242,58,.12); }
+  input::placeholder { color:#3a3a52; }
+  .input-hint { font-size:11px; color:var(--muted); margin-top:5px; padding-left:2px; }
+  .time-row { display:flex; gap:10px; align-items:flex-start; }
+  .time-sep { color:var(--muted); font-size:20px; font-weight:700; flex-shrink:0; padding:0 2px; margin-top:36px; }
+  .time-row .field { flex:1; margin-bottom:0; }
 
-  /* ログイン画面 */
-  #login-screen {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 60vh;
-    gap: 24px;
-    text-align: center;
-  }
-  #login-screen h1 { font-size: 32px; }
-  .login-sub { color: var(--muted); font-size: 14px; line-height: 1.6; }
-  .google-btn {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    background: #fff;
-    color: #1a1a1a;
-    border: none;
-    border-radius: 12px;
-    padding: 14px 24px;
-    font-family: 'Noto Sans JP', sans-serif;
-    font-size: 15px;
-    font-weight: 700;
-    cursor: pointer;
-    width: 100%;
-    max-width: 320px;
-    justify-content: center;
-    transition: opacity .15s, transform .15s;
-    box-shadow: 0 4px 20px rgba(0,0,0,.3);
-  }
-  .google-btn:active { opacity: .85; transform: scale(.97); }
-  .google-icon { width: 20px; height: 20px; }
+  /* サジェスト */
+  .suggest-wrap { position:relative; }
+  .suggest-list { position:absolute; top:100%; left:0; right:0; background:#1e1e28; border:1.5px solid var(--accent); border-top:none; border-radius:0 0 10px 10px; z-index:100; max-height:200px; overflow-y:auto; display:none; }
+  .suggest-list.open { display:block; }
+  .suggest-item { padding:12px 16px; font-size:15px; cursor:pointer; border-bottom:1px solid var(--border); transition:background .1s; }
+  .suggest-item:last-child { border-bottom:none; }
+  .suggest-item:active, .suggest-item.highlighted { background:rgba(200,242,58,.12); color:var(--accent); }
+  .suggest-item .suggest-sub { font-size:11px; color:var(--muted); margin-top:2px; }
 
-  /* ユーザーバー */
-  .user-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 20px;
-    padding: 10px 14px;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-  }
-  .user-info { display: flex; align-items: center; gap: 10px; }
-  .user-avatar {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    background: var(--border);
-    object-fit: cover;
-  }
-  .user-name { font-size: 13px; font-weight: 500; color: var(--muted); }
-  .logout-btn {
-    font-size: 12px;
-    color: var(--muted);
-    background: none;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 5px 10px;
-    cursor: pointer;
-    width: auto;
-    font-family: 'Noto Sans JP', sans-serif;
-  }
-
-  .card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 20px;
-    margin-bottom: 12px;
-    animation: fadeUp .4s ease both;
-  }
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(14px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-  .section-label {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: .1em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 14px;
-  }
-  .field { margin-bottom: 14px; }
-  .field:last-child { margin-bottom: 0; }
-  label {
-    display: block;
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--muted);
-    margin-bottom: 6px;
-  }
-  input[type=text], input[type=number] {
-    width: 100%;
-    background: var(--input-bg);
-    border: 1.5px solid var(--border);
-    border-radius: 10px;
-    color: var(--text);
-    font-family: 'Noto Sans JP', sans-serif;
-    font-size: 18px;
-    padding: 14px 16px;
-    outline: none;
-    transition: border-color .2s, box-shadow .2s;
-    -webkit-appearance: none;
-  }
-  input:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(200,242,58,.12);
-  }
-  input::placeholder { color: #3a3a52; }
-  .input-hint { font-size: 11px; color: var(--muted); margin-top: 5px; padding-left: 2px; }
-  .time-row { display: flex; gap: 10px; align-items: flex-start; }
-  .time-sep { color: var(--muted); font-size: 20px; font-weight: 700; flex-shrink: 0; padding: 0 2px; margin-top: 36px; }
-  .time-row .field { flex: 1; margin-bottom: 0; }
-
-  /* 交通費 */
-  .station-row { display: flex; gap: 10px; }
-  .station-row .field { flex: 1; margin-bottom: 0; }
-  .sub-btn {
-    width: 100%;
-    padding: 12px;
-    background: var(--border);
-    border: 1.5px solid #3a3a55;
-    border-radius: 10px;
-    color: var(--text);
-    font-family: 'Noto Sans JP', sans-serif;
-    font-size: 13px;
-    font-weight: 700;
-    cursor: pointer;
-    margin-top: 10px;
-    transition: background .15s, transform .1s;
-  }
-  .sub-btn:active { transform: scale(.97); }
-  .sub-btn.ok { background: rgba(200,242,58,.15); border-color: var(--accent); color: var(--accent); }
-  .sub-btn.loading { opacity: .6; pointer-events: none; }
-  .fare-status { font-size: 12px; margin-top: 6px; min-height: 18px; color: var(--muted); }
-  .fare-status.ok  { color: var(--accent); }
-  .fare-status.err { color: var(--accent2); }
-
-  /* 定期券リスト */
-  .pass-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
-  .pass-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: var(--input-bg);
-    border: 1.5px solid var(--border);
-    border-radius: 10px;
-    padding: 12px 14px;
-    cursor: pointer;
-    transition: border-color .15s;
-  }
-  .pass-item.selected { border-color: var(--accent); background: rgba(200,242,58,.07); }
-  .pass-item-left { display: flex; flex-direction: column; gap: 3px; }
-  .pass-item-name { font-size: 13px; font-weight: 700; color: var(--text); }
-  .pass-item-route { font-size: 11px; color: var(--muted); }
-  .pass-item-right { display: flex; align-items: center; gap: 10px; }
-  .pass-item-fare { font-size: 15px; font-weight: 700; color: var(--accent); }
-  .pass-delete {
-    background: none;
-    border: none;
-    color: var(--muted);
-    font-size: 18px;
-    cursor: pointer;
-    padding: 2px 4px;
-    width: auto;
-    line-height: 1;
-  }
-  .pass-empty { font-size: 13px; color: var(--muted); padding: 4px 0; }
-
-  /* 定期券追加フォーム */
-  .add-pass-form {
-    border-top: 1px solid var(--border);
-    margin-top: 14px;
-    padding-top: 14px;
-    display: none;
-  }
-  .add-pass-form.open { display: block; }
-  .add-pass-row { display: flex; gap: 8px; }
-  .add-pass-row input { font-size: 14px; padding: 10px 12px; }
-  .add-pass-row .field { flex: 1; margin-bottom: 0; }
-
-  /* 計算ボタン */
-  button.calc-btn {
-    width: 100%;
-    padding: 18px;
-    border: none;
-    border-radius: var(--radius);
-    background: var(--accent);
-    color: #0e0e12;
-    font-family: 'Syne', sans-serif;
-    font-size: 17px;
-    font-weight: 700;
-    letter-spacing: .02em;
-    cursor: pointer;
-    margin-top: 4px;
-    transition: transform .15s, opacity .15s;
-    box-shadow: 0 4px 24px rgba(200,242,58,.18);
-  }
-  button.calc-btn:active { transform: scale(.97); opacity: .88; }
-
-  /* 結果 */
-  #result { display: none; }
-  #result.show { display: block; animation: fadeUp .35s ease both; }
-  .result-tag { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); margin-bottom: 16px; }
-  .big-number { font-family: 'Syne', sans-serif; font-size: 52px; font-weight: 800; line-height: 1; letter-spacing: -.03em; color: var(--accent); }
-  .divider { height: 1px; background: var(--border); margin: 16px 0; }
-  .stat-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; }
-  .stat-label { font-size: 13px; color: var(--muted); }
-  .stat-value { font-size: 15px; font-weight: 700; color: var(--text); }
-  .stat-value.warn { color: var(--accent2); }
-
-  .err-box {
-    background: rgba(255,107,74,.1);
-    border: 1px solid rgba(255,107,74,.3);
-    color: var(--accent2);
-    border-radius: 10px;
-    padding: 12px 16px;
-    font-size: 14px;
-    margin-top: 10px;
-    display: none;
-  }
-  .err-box.show { display: block; }
-
-  #main-screen { display: none; }
-  #main-screen.show { display: block; }
+  .station-row { display:flex; gap:10px; }
+  .station-row .field { flex:1; margin-bottom:0; }
+  .sub-btn { width:100%; padding:12px; background:var(--border); border:1.5px solid #3a3a55; border-radius:10px; color:var(--text); font-family:'Noto Sans JP',sans-serif; font-size:13px; font-weight:700; cursor:pointer; margin-top:10px; transition:background .15s,transform .1s; }
+  .sub-btn:active { transform:scale(.97); }
+  .sub-btn.ok { background:rgba(200,242,58,.15); border-color:var(--accent); color:var(--accent); }
+  .sub-btn.loading { opacity:.6; pointer-events:none; }
+  .fare-status { font-size:12px; margin-top:6px; min-height:18px; color:var(--muted); }
+  .fare-status.ok { color:var(--accent); }
+  .fare-status.err { color:var(--accent2); }
+  .pass-list { display:flex; flex-direction:column; gap:8px; margin-bottom:12px; }
+  .pass-item { display:flex; align-items:center; justify-content:space-between; background:var(--input-bg); border:1.5px solid var(--border); border-radius:10px; padding:12px 14px; cursor:pointer; transition:border-color .15s; }
+  .pass-item.selected { border-color:var(--accent); background:rgba(200,242,58,.07); }
+  .pass-item-left { display:flex; flex-direction:column; gap:3px; }
+  .pass-item-name { font-size:13px; font-weight:700; color:var(--text); }
+  .pass-item-route { font-size:11px; color:var(--muted); }
+  .pass-item-right { display:flex; align-items:center; gap:10px; }
+  .pass-item-fare { font-size:15px; font-weight:700; color:var(--accent); }
+  .pass-delete { background:none; border:none; color:var(--muted); font-size:18px; cursor:pointer; padding:2px 4px; width:auto; line-height:1; }
+  .pass-empty { font-size:13px; color:var(--muted); padding:4px 0; }
+  .add-pass-form { border-top:1px solid var(--border); margin-top:14px; padding-top:14px; display:none; }
+  .add-pass-form.open { display:block; }
+  .add-pass-row { display:flex; gap:8px; }
+  .add-pass-row input { font-size:14px; padding:10px 12px; }
+  .add-pass-row .field { flex:1; margin-bottom:0; }
+  button.calc-btn { width:100%; padding:18px; border:none; border-radius:var(--radius); background:var(--accent); color:#0e0e12; font-family:'Syne',sans-serif; font-size:17px; font-weight:700; letter-spacing:.02em; cursor:pointer; margin-top:4px; transition:transform .15s,opacity .15s; box-shadow:0 4px 24px rgba(200,242,58,.18); }
+  button.calc-btn:active { transform:scale(.97); opacity:.88; }
+  #result { display:none; }
+  #result.show { display:block; animation:fadeUp .35s ease both; }
+  .result-tag { font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--accent); margin-bottom:16px; }
+  .big-number { font-family:'Syne',sans-serif; font-size:52px; font-weight:800; line-height:1; letter-spacing:-.03em; color:var(--accent); }
+  .divider { height:1px; background:var(--border); margin:16px 0; }
+  .stat-row { display:flex; justify-content:space-between; align-items:center; padding:6px 0; }
+  .stat-label { font-size:13px; color:var(--muted); }
+  .stat-value { font-size:15px; font-weight:700; color:var(--text); }
+  .stat-value.warn { color:var(--accent2); }
+  .err-box { background:rgba(255,107,74,.1); border:1px solid rgba(255,107,74,.3); color:var(--accent2); border-radius:10px; padding:12px 16px; font-size:14px; margin-top:10px; display:none; }
+  .err-box.show { display:block; }
+  #main-screen { display:none; }
+  #main-screen.show { display:block; }
 </style>
 </head>
 <body>
 <div class="wrap">
-
-  <!-- ログイン画面 -->
   <div id="login-screen">
-    <div>
-      <div class="badge">WAGE CALC</div>
-      <h1>実質<span>時給</span><br>計算ツール</h1>
-    </div>
+    <div><div class="badge">WAGE CALC</div><h1>実質<span>時給</span><br>計算ツール</h1></div>
     <p class="login-sub">定期券データを保存するために<br>Googleアカウントでログインしてください</p>
     <button class="google-btn" onclick="loginWithGoogle()">
-      <svg class="google-icon" viewBox="0 0 24 24">
-        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
-        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-      </svg>
+      <svg class="google-icon" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
       Googleでログイン
     </button>
   </div>
 
-  <!-- メイン画面 -->
   <div id="main-screen">
     <div class="user-bar">
       <div class="user-info">
@@ -320,11 +114,7 @@
       </div>
       <button class="logout-btn" onclick="logout()">ログアウト</button>
     </div>
-
-    <header>
-      <div class="badge">WAGE CALC</div>
-      <h1>実質<span>時給</span><br>計算ツール</h1>
-    </header>
+    <header><div class="badge">WAGE CALC</div><h1>実質<span>時給</span><br>計算ツール</h1></header>
 
     <div class="card">
       <div class="section-label">💴 支払い</div>
@@ -337,17 +127,9 @@
     <div class="card">
       <div class="section-label">🕐 勤務時間</div>
       <div class="time-row">
-        <div class="field">
-          <label>開始</label>
-          <input type="text" id="start" inputmode="numeric" placeholder="09:00" maxlength="5">
-          <div class="input-hint">数字4桁 例: 0900</div>
-        </div>
+        <div class="field"><label>開始</label><input type="text" id="start" inputmode="numeric" placeholder="09:00" maxlength="5"><div class="input-hint">数字4桁 例: 0900</div></div>
         <div class="time-sep">→</div>
-        <div class="field">
-          <label>終了</label>
-          <input type="text" id="end" inputmode="numeric" placeholder="18:00" maxlength="5">
-          <div class="input-hint">深夜跨ぎ対応</div>
-        </div>
+        <div class="field"><label>終了</label><input type="text" id="end" inputmode="numeric" placeholder="18:00" maxlength="5"><div class="input-hint">深夜跨ぎ対応</div></div>
       </div>
       <div class="field" style="margin-top:14px">
         <label>休憩時間（分）</label>
@@ -357,14 +139,8 @@
 
     <div class="card">
       <div class="section-label">🚃 交通費</div>
-
-      <!-- 定期券リスト -->
       <div id="pass-list" class="pass-list"></div>
-
-      <!-- 定期券追加トグル -->
       <button class="sub-btn" id="add-pass-toggle" onclick="toggleAddPass()">＋ 定期券を追加</button>
-
-      <!-- 定期券追加フォーム -->
       <div class="add-pass-form" id="add-pass-form">
         <div class="field">
           <label>名前（例: 通勤定期）</label>
@@ -373,11 +149,17 @@
         <div class="add-pass-row" style="margin-bottom:10px">
           <div class="field">
             <label>出発駅</label>
-            <input type="text" id="pass-from" placeholder="例: 渋谷">
+            <div class="suggest-wrap">
+              <input type="text" id="pass-from" placeholder="例: 渋谷" autocomplete="off" oninput="showSuggest('pass-from','pass-from-list')">
+              <div class="suggest-list" id="pass-from-list"></div>
+            </div>
           </div>
           <div class="field">
             <label>到着駅</label>
-            <input type="text" id="pass-to" placeholder="例: 新宿">
+            <div class="suggest-wrap">
+              <input type="text" id="pass-to" placeholder="例: 新宿" autocomplete="off" oninput="showSuggest('pass-to','pass-to-list')">
+              <div class="suggest-list" id="pass-to-list"></div>
+            </div>
           </div>
         </div>
         <button class="sub-btn" id="pass-fare-btn" onclick="fetchPassFare()">運賃を自動取得</button>
@@ -390,17 +172,21 @@
       </div>
 
       <div class="divider" style="margin:14px 0"></div>
-
-      <!-- 手動入力 -->
       <div class="section-label" style="margin-bottom:10px">定期区間外・手動入力</div>
       <div class="station-row" style="margin-bottom:10px">
         <div class="field">
           <label>出発駅</label>
-          <input type="text" id="from-station" placeholder="例: 渋谷">
+          <div class="suggest-wrap">
+            <input type="text" id="from-station" placeholder="例: 渋谷" autocomplete="off" oninput="showSuggest('from-station','from-list')">
+            <div class="suggest-list" id="from-list"></div>
+          </div>
         </div>
         <div class="field">
           <label>到着駅</label>
-          <input type="text" id="to-station" placeholder="例: 新宿">
+          <div class="suggest-wrap">
+            <input type="text" id="to-station" placeholder="例: 新宿" autocomplete="off" oninput="showSuggest('to-station','to-list')">
+            <div class="suggest-list" id="to-list"></div>
+          </div>
         </div>
       </div>
       <button class="sub-btn" id="fare-btn" onclick="fetchFare()">運賃を取得</button>
@@ -419,87 +205,94 @@
       <div class="big-number" id="r-hourly">—</div>
       <div style="font-size:13px;color:var(--muted);margin-top:4px">実質時給（交通費込み）</div>
       <div class="divider"></div>
-      <div class="stat-row">
-        <span class="stat-label">実質拘束時間</span>
-        <span class="stat-value" id="r-hours">—</span>
-      </div>
-      <div class="stat-row">
-        <span class="stat-label">交通費（往復）</span>
-        <span class="stat-value warn" id="r-transport">—</span>
-      </div>
-      <div class="stat-row">
-        <span class="stat-label">手取り（交通費引き）</span>
-        <span class="stat-value" id="r-net">—</span>
-      </div>
+      <div class="stat-row"><span class="stat-label">実質拘束時間</span><span class="stat-value" id="r-hours">—</span></div>
+      <div class="stat-row"><span class="stat-label">交通費（往復）</span><span class="stat-value warn" id="r-transport">—</span></div>
+      <div class="stat-row"><span class="stat-label">手取り（交通費引き）</span><span class="stat-value" id="r-net">—</span></div>
       <div class="stat-row" id="r-pass-row" style="display:none">
         <span class="stat-label" id="r-pass-label">定期区間</span>
-        <span class="stat-value ok" id="r-pass-value" style="color:var(--accent)">—</span>
+        <span class="stat-value" id="r-pass-value" style="color:var(--accent)">—</span>
       </div>
     </div>
   </div>
 </div>
 
 <script>
-const SUPABASE_URL  = "https://ystsccwainwgqdgqnfsa.supabase.co";
-const SUPABASE_KEY  = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlzdHNjY3dhaW53Z3FkZ3FuZnNhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzOTgzNzQsImV4cCI6MjA5NTk3NDM3NH0.aYEkRfMalHhB-722qPocE-5FrwPQGjNULm9af4Cwgts";
-const WORKER_URL    = "https://fare-proxy.ryohashimoto1290.workers.dev";
+const STATIONS = [{"n":"東京","r":"とうきょう"},{"n":"神田","r":"かんだ"},{"n":"秋葉原","r":"あきはばら"},{"n":"御徒町","r":"おかちまち"},{"n":"上野","r":"うえの"},{"n":"鶯谷","r":"うぐいすだに"},{"n":"日暮里","r":"にっぽり"},{"n":"西日暮里","r":"にしにっぽり"},{"n":"田端","r":"たばた"},{"n":"駒込","r":"こまごめ"},{"n":"巣鴨","r":"すがも"},{"n":"大塚","r":"おおつか"},{"n":"池袋","r":"いけぶくろ"},{"n":"目白","r":"めじろ"},{"n":"高田馬場","r":"たかだのばば"},{"n":"新大久保","r":"しんおおくぼ"},{"n":"新宿","r":"しんじゅく"},{"n":"代々木","r":"よよぎ"},{"n":"原宿","r":"はらじゅく"},{"n":"渋谷","r":"しぶや"},{"n":"恵比寿","r":"えびす"},{"n":"目黒","r":"めぐろ"},{"n":"五反田","r":"ごたんだ"},{"n":"大崎","r":"おおさき"},{"n":"品川","r":"しながわ"},{"n":"大井町","r":"おおいまち"},{"n":"大森","r":"おおもり"},{"n":"蒲田","r":"かまた"},{"n":"川崎","r":"かわさき"},{"n":"鶴見","r":"つるみ"},{"n":"新子安","r":"しんこやす"},{"n":"東神奈川","r":"ひがしかながわ"},{"n":"横浜","r":"よこはま"},{"n":"桜木町","r":"さくらぎちょう"},{"n":"関内","r":"かんない"},{"n":"石川町","r":"いしかわちょう"},{"n":"山手","r":"やまて"},{"n":"根岸","r":"ねぎし"},{"n":"磯子","r":"いそご"},{"n":"新杉田","r":"しんすぎた"},{"n":"洋光台","r":"ようこうだい"},{"n":"港南台","r":"こうなんだい"},{"n":"本郷台","r":"ほんごうだい"},{"n":"大船","r":"おおふな"},{"n":"三鷹","r":"みたか"},{"n":"武蔵境","r":"むさしさかい"},{"n":"東小金井","r":"ひがしこがねい"},{"n":"武蔵小金井","r":"むさしこがねい"},{"n":"国分寺","r":"こくぶんじ"},{"n":"西国分寺","r":"にしこくぶんじ"},{"n":"国立","r":"くにたち"},{"n":"立川","r":"たちかわ"},{"n":"日野","r":"ひの"},{"n":"豊田","r":"とよだ"},{"n":"八王子","r":"はちおうじ"},{"n":"西八王子","r":"にしはちおうじ"},{"n":"高尾","r":"たかお"},{"n":"相模湖","r":"さがみこ"},{"n":"藤野","r":"ふじの"},{"n":"上野原","r":"うえのはら"},{"n":"四ツ谷","r":"よつや"},{"n":"市ケ谷","r":"いちがや"},{"n":"飯田橋","r":"いいだばし"},{"n":"水道橋","r":"すいどうばし"},{"n":"御茶ノ水","r":"おちゃのみず"},{"n":"錦糸町","r":"きんしちょう"},{"n":"亀戸","r":"かめいど"},{"n":"平井","r":"ひらい"},{"n":"新小岩","r":"しんこいわ"},{"n":"小岩","r":"こいわ"},{"n":"市川","r":"いちかわ"},{"n":"本八幡","r":"もとやわた"},{"n":"西船橋","r":"にしふなばし"},{"n":"船橋","r":"ふなばし"},{"n":"津田沼","r":"つだぬま"},{"n":"幕張","r":"まくはり"},{"n":"千葉","r":"ちば"},{"n":"稲毛","r":"いなげ"},{"n":"西千葉","r":"にしちば"},{"n":"浦和","r":"うらわ"},{"n":"さいたま新都心","r":"さいたましんとしん"},{"n":"与野","r":"よの"},{"n":"北浦和","r":"きたうらわ"},{"n":"南浦和","r":"みなみうらわ"},{"n":"武蔵浦和","r":"むさしうらわ"},{"n":"大宮","r":"おおみや"},{"n":"上尾","r":"あげお"},{"n":"桶川","r":"おけがわ"},{"n":"北本","r":"きたもと"},{"n":"鴻巣","r":"こうのす"},{"n":"久喜","r":"くき"},{"n":"武蔵小杉","r":"むさしこすぎ"},{"n":"西大井","r":"にしおおい"},{"n":"新川崎","r":"しんかわさき"},{"n":"保土ケ谷","r":"ほどがや"},{"n":"東戸塚","r":"ひがしとつか"},{"n":"戸塚","r":"とつか"},{"n":"逗子","r":"ずし"},{"n":"鎌倉","r":"かまくら"},{"n":"北鎌倉","r":"きたかまくら"},{"n":"横須賀","r":"よこすか"},{"n":"久里浜","r":"くりはま"},{"n":"平塚","r":"ひらつか"},{"n":"茅ケ崎","r":"ちがさき"},{"n":"藤沢","r":"ふじさわ"},{"n":"辻堂","r":"つじどう"},{"n":"二宮","r":"にのみや"},{"n":"国府津","r":"こうづ"},{"n":"小田原","r":"おだわら"},{"n":"湯河原","r":"ゆがわら"},{"n":"熱海","r":"あたみ"},{"n":"相模原","r":"さがみはら"},{"n":"橋本","r":"はしもと"},{"n":"相模大野","r":"さがみおおの"},{"n":"古淵","r":"こぶち"},{"n":"淵野辺","r":"ふちのべ"},{"n":"矢部","r":"やべ"},{"n":"町田","r":"まちだ"},{"n":"成瀬","r":"なるせ"},{"n":"長津田","r":"ながつた"},{"n":"十日市場","r":"とおかいちば"},{"n":"中山","r":"なかやま"},{"n":"鴨居","r":"かもい"},{"n":"新横浜","r":"しんよこはま"},{"n":"菊名","r":"きくな"},{"n":"大口","r":"おおぐち"},{"n":"二子玉川","r":"ふたこたまがわ"},{"n":"溝の口","r":"みぞのくち"},{"n":"梶が谷","r":"かじがや"},{"n":"宮崎台","r":"みやざきだい"},{"n":"宮前平","r":"みやまえだいら"},{"n":"鷺沼","r":"さぎぬま"},{"n":"たまプラーザ","r":"たまぷらーざ"},{"n":"あざみ野","r":"あざみの"},{"n":"江田","r":"えだ"},{"n":"市が尾","r":"いちがお"},{"n":"藤が丘","r":"ふじがおか"},{"n":"青葉台","r":"あおばだい"},{"n":"中央林間","r":"ちゅうおうりんかん"},{"n":"南町田グランベリーパーク","r":"みなみまちだぐらんべりーぱーく"},{"n":"自由が丘","r":"じゆうがおか"},{"n":"学芸大学","r":"がくげいだいがく"},{"n":"祐天寺","r":"ゆうてんじ"},{"n":"中目黒","r":"なかめぐろ"},{"n":"代官山","r":"だいかんやま"},{"n":"下北沢","r":"しもきたざわ"},{"n":"成城学園前","r":"せいじょうがくえんまえ"},{"n":"登戸","r":"のぼりと"},{"n":"向ヶ丘遊園","r":"むこうがおかゆうえん"},{"n":"新百合ヶ丘","r":"しんゆりがおか"},{"n":"本厚木","r":"ほんあつぎ"},{"n":"厚木","r":"あつぎ"},{"n":"伊勢原","r":"いせはら"},{"n":"秦野","r":"はだの"},{"n":"新松田","r":"しんまつだ"},{"n":"経堂","r":"きょうどう"},{"n":"千歳船橋","r":"ちとせふなばし"},{"n":"祖師ヶ谷大蔵","r":"そしがやおくら"},{"n":"湘南台","r":"しょうなんだい"},{"n":"片瀬江ノ島","r":"かたせえのしま"},{"n":"上大岡","r":"かみおおおか"},{"n":"金沢文庫","r":"かなざわぶんこ"},{"n":"金沢八景","r":"かなざわはっけい"},{"n":"追浜","r":"おっぱま"},{"n":"京急川崎","r":"けいきゅうかわさき"},{"n":"浅草","r":"あさくさ"},{"n":"押上","r":"おしあげ"},{"n":"人形町","r":"にんぎょうちょう"},{"n":"日本橋","r":"にほんばし"},{"n":"三越前","r":"みつこしまえ"},{"n":"大手町","r":"おおてまち"},{"n":"有楽町","r":"ゆうらくちょう"},{"n":"新橋","r":"しんばし"},{"n":"汐留","r":"しおどめ"},{"n":"築地","r":"つきじ"},{"n":"勝どき","r":"かちどき"},{"n":"月島","r":"つきしま"},{"n":"豊洲","r":"とよす"},{"n":"新木場","r":"しんきば"},{"n":"門前仲町","r":"もんぜんなかちょう"},{"n":"木場","r":"きば"},{"n":"東陽町","r":"とうようちょう"},{"n":"葛西","r":"かさい"},{"n":"西葛西","r":"にしかさい"},{"n":"浦安","r":"うらやす"},{"n":"行徳","r":"ぎょうとく"},{"n":"六本木","r":"ろっぽんぎ"},{"n":"麻布十番","r":"あざぶじゅうばん"},{"n":"白金高輪","r":"しろかねたかなわ"},{"n":"表参道","r":"おもてさんどう"},{"n":"外苑前","r":"がいえんまえ"},{"n":"青山一丁目","r":"あおやまいっちょうめ"},{"n":"赤坂見附","r":"あかさかみつけ"},{"n":"永田町","r":"ながたちょう"},{"n":"溜池山王","r":"ためいけさんのう"},{"n":"国会議事堂前","r":"こっかいぎじどうまえ"},{"n":"霞ケ関","r":"かすみがせき"},{"n":"日比谷","r":"ひびや"},{"n":"銀座","r":"ぎんざ"},{"n":"京橋","r":"きょうばし"},{"n":"新宿三丁目","r":"しんじゅくさんちょうめ"},{"n":"都庁前","r":"とちょうまえ"},{"n":"中野坂上","r":"なかのさかうえ"},{"n":"後楽園","r":"こうらくえん"},{"n":"本郷三丁目","r":"ほんごうさんちょうめ"},{"n":"湯島","r":"ゆしま"},{"n":"北千住","r":"きたせんじゅ"},{"n":"南千住","r":"みなみせんじゅ"},{"n":"春日","r":"かすが"},{"n":"白山","r":"はくさん"},{"n":"本駒込","r":"ほんこまごめ"},{"n":"江戸川橋","r":"えどがわばし"},{"n":"神楽坂","r":"かぐらざか"},{"n":"牛込神楽坂","r":"うしごめかぐらざか"},{"n":"牛込柳町","r":"うしごめやなぎちょう"},{"n":"若松河田","r":"わかまつかわだ"},{"n":"東新宿","r":"ひがししんじゅく"},{"n":"西早稲田","r":"にしわせだ"},{"n":"川越","r":"かわごえ"},{"n":"所沢","r":"ところざわ"},{"n":"入間市","r":"いるまし"},{"n":"志木","r":"しき"},{"n":"和光市","r":"わこうし"},{"n":"朝霞","r":"あさか"},{"n":"ひばりヶ丘","r":"ひばりがおか"},{"n":"清瀬","r":"きよせ"},{"n":"東久留米","r":"ひがしくるめ"},{"n":"田無","r":"たなし"},{"n":"小平","r":"こだいら"},{"n":"東村山","r":"ひがしむらやま"},{"n":"拝島","r":"はいじま"},{"n":"柏","r":"かしわ"},{"n":"我孫子","r":"あびこ"},{"n":"取手","r":"とりで"},{"n":"松戸","r":"まつど"},{"n":"新松戸","r":"しんまつど"},{"n":"北小金","r":"きたこがね"},{"n":"成田","r":"なりた"},{"n":"成田空港","r":"なりたくうこう"},{"n":"海浜幕張","r":"かいひんまくはり"},{"n":"つくば","r":"つくば"},{"n":"守谷","r":"もりや"},{"n":"流山おおたかの森","r":"ながれやまおおたかのもり"},{"n":"柏の葉キャンパス","r":"かしわのはきゃんぱす"},{"n":"八潮","r":"やしお"},{"n":"三郷中央","r":"みさとちゅうおう"},{"n":"南流山","r":"みなみながれやま"},{"n":"三崎口","r":"みさきぐち"},{"n":"衣笠","r":"きぬがさ"},{"n":"府中","r":"ふちゅう"},{"n":"分倍河原","r":"ぶばいがわら"},{"n":"聖蹟桜ヶ丘","r":"せいせきさくらがおか"},{"n":"多摩センター","r":"たませんたー"},{"n":"永山","r":"ながやま"},{"n":"若葉台","r":"わかばだい"},{"n":"稲城","r":"いなぎ"},{"n":"矢野口","r":"やのくち"},{"n":"稲城長沼","r":"いなぎながぬま"},{"n":"南多摩","r":"みなみたま"},{"n":"府中本町","r":"ふちゅうほんまち"},{"n":"谷保","r":"やほ"},{"n":"西府","r":"にしふ"},{"n":"中河原","r":"なかがわら"},{"n":"百草園","r":"もぐさえん"},{"n":"高幡不動","r":"たかはたふどう"},{"n":"南平","r":"みなみだいら"},{"n":"平山城址公園","r":"ひらやまじょうしこうえん"},{"n":"長沼","r":"ながぬま"},{"n":"北野","r":"きたの"},{"n":"京王八王子","r":"けいおうはちおうじ"},{"n":"調布","r":"ちょうふ"},{"n":"布田","r":"ふだ"},{"n":"国領","r":"こくりょう"},{"n":"柴崎","r":"しばさき"},{"n":"つつじヶ丘","r":"つつじがおか"},{"n":"仙川","r":"せんかわ"},{"n":"芦花公園","r":"ろかこうえん"},{"n":"千歳烏山","r":"ちとせからすやま"},{"n":"八幡山","r":"はちまんやま"},{"n":"上北沢","r":"かみきたざわ"},{"n":"桜上水","r":"さくらじょうすい"},{"n":"下高井戸","r":"しもたかいど"},{"n":"明大前","r":"めいだいまえ"},{"n":"代田橋","r":"だいたばし"},{"n":"笹塚","r":"ささづか"},{"n":"幡ヶ谷","r":"はたがや"},{"n":"初台","r":"はつだい"},{"n":"京王新線新宿","r":"けいおうしんせんしんじゅく"},{"n":"東松原","r":"ひがしまつばら"},{"n":"新代田","r":"しんだいた"},{"n":"池ノ上","r":"いけのうえ"},{"n":"駒場東大前","r":"こまばとうだいまえ"},{"n":"神泉","r":"しんせん"},{"n":"富士見ヶ丘","r":"ふじみがおか"},{"n":"久我山","r":"くがやま"},{"n":"三鷹台","r":"みたかだい"},{"n":"井の頭公園","r":"いのかしらこうえん"},{"n":"吉祥寺","r":"きちじょうじ"}];
 
+const SUPABASE_URL = "https://ystsccwainwgqdgqnfsa.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlzdHNjY3dhaW53Z3FkZ3FuZnNhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzOTgzNzQsImV4cCI6MjA5NTk3NDM3NH0.aYEkRfMalHhB-722qPocE-5FrwPQGjNULm9af4Cwgts";
+const WORKER_URL  = "https://fare-proxy.ryohashimoto1290.workers.dev";
 const { createClient } = supabase;
 const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-let currentUser = null;
-let passes = [];
-let selectedPassId = null;
+let currentUser = null, passes = [], selectedPassId = null;
 
-// ── 認証 ──────────────────────────────
+// ── 認証 ──
 async function loginWithGoogle() {
-  await sb.auth.signInWithOAuth({
-    provider: 'google',
-    options: { redirectTo: location.href }
-  });
+  await sb.auth.signInWithOAuth({ provider:'google', options:{ redirectTo: location.href } });
 }
-async function logout() {
-  await sb.auth.signOut();
-  location.reload();
+async function logout() { await sb.auth.signOut(); location.reload(); }
+sb.auth.onAuthStateChange(async (_e, session) => {
+  if (session?.user) { currentUser = session.user; showMain(); await loadPasses(); }
+  else { currentUser = null; document.getElementById('login-screen').style.display='flex'; document.getElementById('main-screen').classList.remove('show'); }
+});
+function showMain() {
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('main-screen').classList.add('show');
+  const m = currentUser.user_metadata;
+  document.getElementById('user-name').textContent = m.full_name || m.email || '';
+  const av = document.getElementById('user-avatar');
+  if (m.avatar_url) { av.src = m.avatar_url; av.style.display='block'; } else av.style.display='none';
 }
 
-sb.auth.onAuthStateChange(async (event, session) => {
-  if (session?.user) {
-    currentUser = session.user;
-    showMain();
-    await loadPasses();
-  } else {
-    currentUser = null;
-    document.getElementById('login-screen').style.display = 'flex';
-    document.getElementById('main-screen').classList.remove('show');
-  }
+// ── サジェスト ──
+function showSuggest(inputId, listId) {
+  const val = document.getElementById(inputId).value.trim();
+  const list = document.getElementById(listId);
+  if (!val) { list.classList.remove('open'); list.innerHTML=''; return; }
+
+  // 駅名（前方一致優先）またはよみがな前方一致
+  const q = val.toLowerCase();
+  const matches = STATIONS.filter(s =>
+    s.n.startsWith(val) || s.r.startsWith(q)
+  ).slice(0, 6);
+
+  if (!matches.length) { list.classList.remove('open'); list.innerHTML=''; return; }
+
+  list.innerHTML = matches.map(s =>
+    `<div class="suggest-item" onmousedown="pickSuggest('${inputId}','${listId}','${s.n}')">
+      ${s.n}<div class="suggest-sub">${s.r}</div>
+    </div>`
+  ).join('');
+  list.classList.add('open');
+}
+
+function pickSuggest(inputId, listId, name) {
+  document.getElementById(inputId).value = name;
+  const list = document.getElementById(listId);
+  list.classList.remove('open');
+  list.innerHTML = '';
+}
+
+// フォーカスが外れたら閉じる
+document.addEventListener('click', e => {
+  document.querySelectorAll('.suggest-list').forEach(l => {
+    if (!l.previousElementSibling?.contains(e.target)) {
+      l.classList.remove('open'); l.innerHTML='';
+    }
+  });
 });
 
-function showMain() {
-  document.getElementById('login-screen').style.display = 'none';
-  document.getElementById('main-screen').classList.add('show');
-  const meta = currentUser.user_metadata;
-  document.getElementById('user-name').textContent = meta.full_name || meta.email || '';
-  const avatar = document.getElementById('user-avatar');
-  if (meta.avatar_url) { avatar.src = meta.avatar_url; avatar.style.display = 'block'; }
-  else avatar.style.display = 'none';
-}
-
-// ── 定期券CRUD ────────────────────────
+// ── 定期券 ──
 async function loadPasses() {
   const { data } = await sb.from('commute_passes').select('*').order('created_at');
-  passes = data || [];
-  renderPasses();
+  passes = data || []; renderPasses();
 }
-
 function renderPasses() {
   const list = document.getElementById('pass-list');
-  if (!passes.length) {
-    list.innerHTML = '<div class="pass-empty">登録済みの定期券はありません</div>';
-    return;
-  }
+  if (!passes.length) { list.innerHTML='<div class="pass-empty">登録済みの定期券はありません</div>'; return; }
   list.innerHTML = passes.map(p => `
-    <div class="pass-item ${selectedPassId === p.id ? 'selected' : ''}" onclick="selectPass('${p.id}')">
+    <div class="pass-item ${selectedPassId===p.id?'selected':''}" onclick="selectPass('${p.id}')">
       <div class="pass-item-left">
         <div class="pass-item-name">${p.name}</div>
         <div class="pass-item-route">${p.from_station} → ${p.to_station}</div>
@@ -511,177 +304,95 @@ function renderPasses() {
     </div>
   `).join('');
 }
-
 function selectPass(id) {
-  if (selectedPassId === id) {
-    selectedPassId = null;
-    document.getElementById('transport').value = '';
-  } else {
-    selectedPassId = id;
-    const p = passes.find(x => x.id === id);
-    if (p) document.getElementById('transport').value = p.fare;
-  }
+  if (selectedPassId===id) { selectedPassId=null; document.getElementById('transport').value=''; }
+  else { selectedPassId=id; const p=passes.find(x=>x.id===id); if(p) document.getElementById('transport').value=p.fare; }
   renderPasses();
 }
-
 async function deletePass(e, id) {
   e.stopPropagation();
-  await sb.from('commute_passes').delete().eq('id', id);
-  if (selectedPassId === id) { selectedPassId = null; document.getElementById('transport').value = ''; }
+  await sb.from('commute_passes').delete().eq('id',id);
+  if (selectedPassId===id) { selectedPassId=null; document.getElementById('transport').value=''; }
   await loadPasses();
 }
-
 function toggleAddPass() {
-  const form = document.getElementById('add-pass-form');
-  form.classList.toggle('open');
-  document.getElementById('add-pass-toggle').textContent =
-    form.classList.contains('open') ? '✕ キャンセル' : '＋ 定期券を追加';
+  const f = document.getElementById('add-pass-form');
+  f.classList.toggle('open');
+  document.getElementById('add-pass-toggle').textContent = f.classList.contains('open') ? '✕ キャンセル' : '＋ 定期券を追加';
 }
-
 async function fetchPassFare() {
-  const from = document.getElementById('pass-from').value.trim();
-  const to   = document.getElementById('pass-to').value.trim();
-  const btn  = document.getElementById('pass-fare-btn');
-  const status = document.getElementById('pass-fare-status');
-  if (!from || !to) { status.textContent = '⚠ 駅名を入力してください'; status.className = 'fare-status err'; return; }
-  btn.textContent = '取得中…'; btn.className = 'sub-btn loading';
+  const from=document.getElementById('pass-from').value.trim(), to=document.getElementById('pass-to').value.trim();
+  const btn=document.getElementById('pass-fare-btn'), status=document.getElementById('pass-fare-status');
+  if (!from||!to) { status.textContent='⚠ 駅名を入力してください'; status.className='fare-status err'; return; }
+  btn.textContent='取得中…'; btn.className='sub-btn loading';
   try {
-    const res = await fetch(`${WORKER_URL}/?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`);
-    const data = await res.json();
-    if (data.fare) {
-      document.getElementById('pass-fare').value = data.fare;
-      status.textContent = `✓ ${from}→${to}：${data.fare.toLocaleString()}円`;
-      status.className = 'fare-status ok';
-    } else {
-      status.textContent = '⚠ ' + (data.error || '取得失敗');
-      status.className = 'fare-status err';
-    }
-  } catch { status.textContent = '⚠ 通信エラー'; status.className = 'fare-status err'; }
-  btn.textContent = '運賃を自動取得'; btn.className = 'sub-btn';
+    const r=await fetch(`${WORKER_URL}/?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`);
+    const d=await r.json();
+    if (d.fare) { document.getElementById('pass-fare').value=d.fare; status.textContent=`✓ ${from}→${to}：${d.fare.toLocaleString()}円`; status.className='fare-status ok'; }
+    else { status.textContent='⚠ '+(d.error||'取得失敗'); status.className='fare-status err'; }
+  } catch { status.textContent='⚠ 通信エラー'; status.className='fare-status err'; }
+  btn.textContent='運賃を自動取得'; btn.className='sub-btn';
 }
-
 async function savePass() {
-  const name = document.getElementById('pass-name').value.trim();
-  const from = document.getElementById('pass-from').value.trim();
-  const to   = document.getElementById('pass-to').value.trim();
-  const fare = parseInt(document.getElementById('pass-fare').value);
-  if (!name || !from || !to || isNaN(fare)) {
-    alert('すべての項目を入力してください'); return;
-  }
-  await sb.from('commute_passes').insert({
-    user_id: currentUser.id, name, from_station: from, to_station: to, fare
-  });
-  // フォームリセット
-  ['pass-name','pass-from','pass-to','pass-fare'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('pass-fare-status').textContent = '';
-  toggleAddPass();
-  await loadPasses();
+  const name=document.getElementById('pass-name').value.trim();
+  const from=document.getElementById('pass-from').value.trim();
+  const to=document.getElementById('pass-to').value.trim();
+  const fare=parseInt(document.getElementById('pass-fare').value);
+  if (!name||!from||!to||isNaN(fare)) { alert('すべての項目を入力してください'); return; }
+  await sb.from('commute_passes').insert({ user_id:currentUser.id, name, from_station:from, to_station:to, fare });
+  ['pass-name','pass-from','pass-to','pass-fare'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('pass-fare-status').textContent='';
+  toggleAddPass(); await loadPasses();
 }
 
-// ── 運賃取得（手動） ─────────────────
+// ── 運賃取得（手動） ──
 async function fetchFare() {
-  const from = document.getElementById('from-station').value.trim();
-  const to   = document.getElementById('to-station').value.trim();
-  const btn  = document.getElementById('fare-btn');
-  const status = document.getElementById('fare-status');
-  if (!from || !to) { status.textContent = '⚠ 駅名を入力してください'; status.className = 'fare-status err'; return; }
-  btn.textContent = '取得中…'; btn.className = 'sub-btn loading';
+  const from=document.getElementById('from-station').value.trim(), to=document.getElementById('to-station').value.trim();
+  const btn=document.getElementById('fare-btn'), status=document.getElementById('fare-status');
+  if (!from||!to) { status.textContent='⚠ 駅名を入力してください'; status.className='fare-status err'; return; }
+  btn.textContent='取得中…'; btn.className='sub-btn loading';
   try {
-    const res = await fetch(`${WORKER_URL}/?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`);
-    const data = await res.json();
-    if (data.fare) {
-      document.getElementById('transport').value = data.fare;
-      status.textContent = `✓ ${from}→${to}：片道 ${data.fare.toLocaleString()}円（IC運賃）`;
-      status.className = 'fare-status ok';
-      btn.className = 'sub-btn ok';
-    } else {
-      status.textContent = '⚠ ' + (data.error || '取得失敗');
-      status.className = 'fare-status err';
-      btn.className = 'sub-btn';
-    }
-  } catch { status.textContent = '⚠ 通信エラー'; status.className = 'fare-status err'; btn.className = 'sub-btn'; }
-  btn.textContent = '運賃を取得';
+    const r=await fetch(`${WORKER_URL}/?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`);
+    const d=await r.json();
+    if (d.fare) { document.getElementById('transport').value=d.fare; status.textContent=`✓ ${from}→${to}：片道 ${d.fare.toLocaleString()}円（IC運賃）`; status.className='fare-status ok'; btn.className='sub-btn ok'; }
+    else { status.textContent='⚠ '+(d.error||'取得失敗'); status.className='fare-status err'; btn.className='sub-btn'; }
+  } catch { status.textContent='⚠ 通信エラー'; status.className='fare-status err'; btn.className='sub-btn'; }
+  btn.textContent='運賃を取得';
 }
 
-// ── 時間入力 ─────────────────────────
+// ── 時間入力 ──
 function setupTimeInput(id) {
-  const input = document.getElementById(id);
-  input.addEventListener('input', function() {
-    let d = this.value.replace(/\D/g,'');
-    if (!d.length) { this.value=''; return; }
-    if (d.length > 4) d = d.slice(0,4);
-    this.value = d.length === 4 ? d.slice(0,2)+':'+d.slice(2,4) : d;
-  });
-  input.addEventListener('blur', function() {
-    let d = this.value.replace(/\D/g,'');
-    if (!d.length) return;
-    while (d.length < 4) d = '0'+d;
-    this.value = d.slice(0,2)+':'+d.slice(2,4);
-  });
+  const el=document.getElementById(id);
+  el.addEventListener('input',function(){ let d=this.value.replace(/\D/g,''); if(!d.length){this.value='';return;} if(d.length>4)d=d.slice(0,4); this.value=d.length===4?d.slice(0,2)+':'+d.slice(2,4):d; });
+  el.addEventListener('blur',function(){ let d=this.value.replace(/\D/g,''); if(!d.length)return; while(d.length<4)d='0'+d; this.value=d.slice(0,2)+':'+d.slice(2,4); });
 }
-setupTimeInput('start');
-setupTimeInput('end');
+setupTimeInput('start'); setupTimeInput('end');
 
-// ── 計算 ─────────────────────────────
-function parseTime(str) {
-  const p = str.split(':');
-  if (p.length !== 2) return null;
-  const h = parseInt(p[0],10), m = parseInt(p[1],10);
-  if (isNaN(h)||isNaN(m)||h<0||h>23||m<0||m>59) return null;
-  return h*60+m;
-}
-function showErr(msg) {
-  const e = document.getElementById('err');
-  e.textContent = msg; e.classList.add('show');
-  document.getElementById('result').classList.remove('show');
-}
-function hideErr() { document.getElementById('err').classList.remove('show'); }
-
-function calc() {
+// ── 計算 ──
+function parseTime(s){ const p=s.split(':'); if(p.length!==2)return null; const h=parseInt(p[0],10),m=parseInt(p[1],10); if(isNaN(h)||isNaN(m)||h<0||h>23||m<0||m>59)return null; return h*60+m; }
+function showErr(msg){ const e=document.getElementById('err'); e.textContent=msg; e.classList.add('show'); document.getElementById('result').classList.remove('show'); }
+function hideErr(){ document.getElementById('err').classList.remove('show'); }
+function calc(){
   hideErr();
-  const pay       = Number(document.getElementById("pay").value) || 0;
-  const startVal  = document.getElementById("start").value.trim();
-  const endVal    = document.getElementById("end").value.trim();
-  const breakMin  = Number(document.getElementById("break").value) || 0;
-  const transport = Number(document.getElementById("transport").value) || 0;
-
-  if (!startVal||!endVal) { showErr("⚠ 勤務時間を入力してください"); return; }
-  const startMin = parseTime(startVal);
-  const endMin   = parseTime(endVal);
-  if (!startMin && startMin!==0) { showErr("⚠ 開始時間が正しくありません"); return; }
-  if (!endMin   && endMin!==0)   { showErr("⚠ 終了時間が正しくありません"); return; }
-
-  let diffMin = endMin - startMin;
-  if (diffMin <= 0) diffMin += 24*60;
-  diffMin -= breakMin;
-  if (diffMin <= 0) { showErr("⚠ 時間の設定を確認してください"); return; }
-
-  const workHours = diffMin / 60;
-  const roundTrip = transport * 2;
-  const realPay   = pay - roundTrip;
-  const hourly    = realPay / workHours;
-  const fmt = n => Math.round(n).toLocaleString('ja-JP');
-
-  document.getElementById("r-hourly").textContent    = fmt(hourly) + " 円";
-  document.getElementById("r-hours").textContent     = workHours.toFixed(2) + " 時間";
-  document.getElementById("r-transport").textContent = "−" + fmt(roundTrip) + " 円";
-  document.getElementById("r-net").textContent       = fmt(realPay) + " 円";
-
-  // 定期券選択中なら表示
-  const passRow = document.getElementById('r-pass-row');
-  if (selectedPassId) {
-    const p = passes.find(x => x.id === selectedPassId);
-    if (p) {
-      document.getElementById('r-pass-label').textContent = `定期：${p.name}`;
-      document.getElementById('r-pass-value').textContent = `${p.from_station}→${p.to_station}`;
-      passRow.style.display = 'flex';
-    }
-  } else { passRow.style.display = 'none'; }
-
-  const res = document.getElementById("result");
-  res.classList.remove('show');
-  void res.offsetWidth;
-  res.classList.add('show');
+  const pay=Number(document.getElementById("pay").value)||0;
+  const sv=document.getElementById("start").value.trim(), ev=document.getElementById("end").value.trim();
+  const brk=Number(document.getElementById("break").value)||0;
+  const tr=Number(document.getElementById("transport").value)||0;
+  if(!sv||!ev){showErr("⚠ 勤務時間を入力してください");return;}
+  const sm=parseTime(sv), em=parseTime(ev);
+  if(sm===null){showErr("⚠ 開始時間が正しくありません");return;}
+  if(em===null){showErr("⚠ 終了時間が正しくありません");return;}
+  let diff=em-sm; if(diff<=0)diff+=24*60; diff-=brk;
+  if(diff<=0){showErr("⚠ 時間の設定を確認してください");return;}
+  const wh=diff/60, rt=tr*2, rp=pay-rt, hw=rp/wh;
+  const fmt=n=>Math.round(n).toLocaleString('ja-JP');
+  document.getElementById("r-hourly").textContent=fmt(hw)+" 円";
+  document.getElementById("r-hours").textContent=wh.toFixed(2)+" 時間";
+  document.getElementById("r-transport").textContent="−"+fmt(rt)+" 円";
+  document.getElementById("r-net").textContent=fmt(rp)+" 円";
+  const pr=document.getElementById('r-pass-row');
+  if(selectedPassId){ const p=passes.find(x=>x.id===selectedPassId); if(p){ document.getElementById('r-pass-label').textContent=`定期：${p.name}`; document.getElementById('r-pass-value').textContent=`${p.from_station}→${p.to_station}`; pr.style.display='flex'; } } else pr.style.display='none';
+  const res=document.getElementById("result"); res.classList.remove('show'); void res.offsetWidth; res.classList.add('show');
 }
 </script>
 </body>
